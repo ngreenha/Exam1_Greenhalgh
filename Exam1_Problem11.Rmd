@@ -1,0 +1,65 @@
+---
+title: "Exam_Question11"
+author: "Natalie Greenhalgh"
+date: "11/2/2017"
+output: html_document
+---
+
+```{r, ggplot2}
+#install.packages("ggplot2")
+library("ggplot2")
+```
+
+Problem 1
+```{r, reading in data}
+exons<- read.csv("Homo_sapiens_exons.gtf", sep="\t", header=FALSE)
+transcripts<- read.csv("Homo_sapiens_transcript.gtf", sep="\t", header=FALSE)
+```
+
+```{r, making length column}
+exons$length<- (exons$V5 - exons$V4) +1
+transcripts$length <- (transcripts$V5 - transcripts$V4)+1
+```
+
+```{r, transcripts}
+summary(exons)
+summary(transcripts)
+```
+
+```{r, calculating mean and SE for both datasets}
+Exon<- aggregate(exons$length, list(exons$V1), mean)
+Exon1<- aggregate(exons$V1, list(exons$V1), summary)
+Exon$stderr <- (sd(Exon$x)/sqrt(Exon1$x))
+Trans<-aggregate(transcripts$length, list(transcripts$V1), mean)
+Trans1<- aggregate(transcripts$V1, list(transcripts$V1), summary)
+Trans$stderr<-(sd(Trans$x)/sqrt(Trans1$x))
+```
+
+```{r, merging data}
+#colnames(avgE)[1] <- "Chromosome" 
+#colnames(avgT)[1] <- "Chromosome"
+table<- merge(Exon, Trans, by.x ="Group.1", by.y = "Group.1")
+colnames(table)[1] <- "Chromosome"
+colnames(table)[2] <- "Exon_Mean"
+colnames(table)[3] <- "Exon_SE"
+colnames(table)[4] <- "Transcript_Mean"
+colnames(table)[5] <- "Transcript_SE"
+options(digits=7)
+knitr::kable(table, format="html")
+```
+
+
+Problem 2
+```{r, plot}
+XY <- subset(exons, exons$V1 == c("X", "Y"))
+hist(XY$length) #X and Y together
+```
+
+Problem 3
+
+No there is no relationship or correlation between total chromosome length and average exon length across chromosomes.
+```{r}
+Exon2<- aggregate(exons$length, list(exons$V1), sum) #total exon length per chromosome
+plot(table$Exon_Mean, Exon2$x)
+cor(table$Exon_Mean, Exon2$x)
+```
