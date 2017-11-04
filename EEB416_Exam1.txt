@@ -1,0 +1,77 @@
+
+1. No, ecological modeling of populations of organisms should not be a bioinformatics research area because it involves mathematical/statistical methods rather than computational tools to understand biological systems. But ecological informatics, which infers ecological patterns from ecological data through computational techniques, should be considered a bioinformatics research area.
+
+2. False. Only the RefSeq database is peer-reviewed.
+
+3. This result is good and significant. Because this E-value is <1e-50, there is an extremely high confidence that this database result is homologous.
+The lower the E-value, the less likely the database match is result of random chance, and is therefore more significant.
+
+4. We increase the copy number of target DNA before sequencing through cloning or PCR amplification.
+
+5. Eukaryotes have 2-3 genomes per cell and prokaryotes have 1 genome per cell.
+
+
+6. 
+	1) The accession number is AFV73403.1
+	2) Blastp is the most appropriate blast type because we are looking for other protein sequences that are homologs of the query protein sequence.
+	3) 1430 hits are returned.
+	4) I found homologs for 147 species
+	5)
+		XP_021678755		0.0
+		XP_021601648		0.0
+		XP_021613222		2e-161
+		XP_002302428		1e-159
+		XP_021657048		3e-157
+		XP_021903563		6e-157
+
+
+
+7. 	The accession number is JX569771.1.
+	1) Blastn is the most appropriate blast type because we are looking for nucleotide sequences that are homologs to the query sequence.
+	2) 39 hits are returned
+	3) I found homologs for 20 species
+	4) 		
+		XM_021823063		0.0
+		XM_021801356		0.0
+		XM_021745956		0.0
+		XM_021757530		0.0
+		XM_011018849		2e-127
+		XM_002510109		3e-96
+
+
+
+8. 
+	1) The University of Helsinki has developed tools for this species.
+Website: https://www.helsinki.fi/en/researchgroups/metapopulation-research-centre/glanville-fritillary-butterfly-genome-project
+	2) They are in the process of developing LiSs (Linkage map Superscaffolder) for superscaffolding.
+	3) They have developed LEP map software for linkage map construction, MIP scaffolder for genome scaffolding, Coral and HybridSHREC for read error correction, PANNZER for functional annotation, and EPT and SANS for ethology prediction.
+	4) Yes, you can find their paper and the University of Helsinki behind the project on NCBI. If you search the species under BioProjects, multiple projects come up and the University of Helsinki is listed.
+	5)
+
+
+
+9. 
+	1) grep -c ">" Homo_sapiens.GRCh38.cds.all.fa 
+	There are 101993 sequences in the fasta file.
+
+	2) wc -l Homo_sapiens.GRCh38.cds.all.fa 
+	There are 2066758 lines in the fasta file.
+
+	3) grep -c "AGATCGG" Homo_sapiens.GRCh38.cds.all.fa 
+	Yes, the adapter sequence “AGATCGG” is in the fast file 2950 times.
+
+
+
+10. 	
+	1) awk '/^>/{print ">" ++i; next}{print}' < Homo_sapiens.GRCh38.cds.all.fa > Homo_sapiens.GRCh38_changed_headers
+
+	2. grep -v "^#" Homo_sapiens.GRCh38.82.abinitio.gtf | cut -f1,3,4,5 > Homo_sapiens.bed
+
+	3. grep -v "transcript" Homo_sapiens.GRCh38.82.abinitio.gtf > Homo_sapiens_exons.gtf 
+	This includes all sequences with exons.
+	grep -v "exon" Homo_sapiens.GRCh38.82.abinitio.gtf > Homo_sapiens_transcript.gtf
+	This includes all sequences with transcripts.
+
+
+11. 	3) There is no correlation between total chromosome length and average exon length across chromosomes.
+
