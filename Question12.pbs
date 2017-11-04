@@ -1,0 +1,61 @@
+#!/bin/sh
+####  PBS preamble
+
+#PBS -N blast-example-2
+#PBS -V
+
+# Change the number of cores (ppn=4), amount of memory, and walltime
+# based on what your job will require:
+#PBS -l nodes=1:ppn=4,pmem=8gb,walltime=10:00:00
+
+#PBS -A eeb416f17_flux
+#PBS -q flux
+#PBS -l qos=flux
+
+#PBS -m abe
+#PBS -j oe
+
+####  End PBS preamble
+
+#Set list of species from http://web.corral.tacc.utexas.edu/OneKP/
+#Each species will be processed by its own job array element.
+SPECIESLIST=( \
+SPECIES1-species1_name \
+SPECIES2-species2_name \
+
+#  Show list of CPUs you ran on, if you're running under PBS
+if [ -n "$PBS_JOBID" ]; then echo -n "Running on nodes/cores: "; qstat -n $PBS_JOBID | tail -1; fi
+
+#  Change to the directory you submitted from
+if [ -n "$PBS_O_WORKDIR" ]; then cd $PBS_O_WORKDIR; fi; echo -n "Current working directory: "; pwd
+echo
+
+#  Set your max threads here
+export OMP_NUM_THREADS=${PBS_NUM_PPN:-1}
+
+#Obtain species code
+SPECIESNAME = ${SPECIESLIST['expr $PBS_ARRAYID - 1']}
+SPECIESCODE=${SPECIESNAME:0:4}
+
+#  Put your job script commands here:
+
+####New gene expression mapping script
+
+#index the transcriptome
+bwa index -a is ${SPECIESCODE}-insert_transcriptome.fa > bwa_index.stdout 2> bwa_index.stderr
+
+#align reads to transcriptome
+bwa aln -t4 ${SPECIESCODE}-insert_transcriptome.fa ${SPECIESCODE}-read_1.fq > ${SPECIESCODE}_R1.sai 2> ${SPECIESCODE}_R1_bwa_aln.stderr
+bwa aln -t4 ${SPECIESCODE}-insert_transcriptome.fa ${SPECIESCODE}-read_2.fq > ${SPECIESCODE}_R2.sai 2> ${SPECIESCODE}_R2_bwa_aln.stderr
+
+#Produce the .sam alignment file
+bwa sampe ${SPECIESCODE}-insert_transcriptome.fa ${SPECIESCODE}_R1.sai ${SPECIESCODE}_R2.sai ${SPECIESCODE}-read_1.fq ${SPECIESCODE}-read_2.fq > ${SPECIESCODE}.sam 2> ${SPECIESCODE}_sampe.stderr
+
+#Return only primary mapped reads
+samtools view -b ${SPECIESCODE}.sam > ${SPECIESCODE}.bam
+samtools view -F 0x904 -f 0x40 -b ${SPECIESCODE}.bam > output.filter.bam
+
+#Estimate read counts
+samtools sort -@ 4 -m 8G output.filter.bam -o output.filter.sorted.bam
+samtools index output.filter.sorted.bam
+samtools idxstats output.filter.sorted.bam > output.counts.txt
